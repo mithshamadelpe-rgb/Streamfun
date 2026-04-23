@@ -1,51 +1,766 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Thanos JS</title>
-    <link href="styles.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A demo site to use with Netlify Drop">
-    <meta name="keywords" content="Thanos, JavaScript, Paradoy, Netlify Drop">
-    <meta name="author" content="Rafael Conde">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans,sans-serif);background:#0e0e14;color:#f0f0f0;min-height:100vh}
+:root{--red:#E24B4A;--gold:#EF9F27;--teal:#1D9E75;--purple:#7F77DD;--blue:#378ADD}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+nav{display:flex;align-items:center;padding:10px 16px;background:#0e0e14;border-bottom:0.5px solid #ffffff18;position:sticky;top:0;z-index:100;gap:7px;flex-wrap:wrap}
+.logo{font-size:18px;font-weight:700;color:var(--red);white-space:nowrap}
+.logo span{color:#f0f0f0}
+.sw{flex:1;min-width:100px;max-width:240px;position:relative}
+.sw input{width:100%;background:#1a1a25;border:0.5px solid #ffffff22;border-radius:16px;padding:6px 10px 6px 28px;color:#f0f0f0;font-size:12px;font-family:inherit;outline:none}
+.sw input:focus{border-color:var(--red)}.sw input::placeholder{color:#555}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#555;font-size:11px;pointer-events:none}
+.navlinks{display:flex;gap:2px}
+.nl{background:none;border:none;color:#888;cursor:pointer;font-family:inherit;font-size:11px;padding:5px 8px;border-radius:5px}
+.nl:hover,.nl.act{background:#ffffff0f;color:#fff}
+.navr{display:flex;align-items:center;gap:5px;margin-left:auto;flex-wrap:wrap}
+.btn{border:none;cursor:pointer;font-family:inherit;border-radius:6px;font-size:12px;padding:6px 12px;font-weight:500;transition:opacity 0.2s}
+.btn:hover{opacity:0.85}
+.bo{background:transparent;border:1px solid #ffffff33;color:#f0f0f0}
+.br{background:var(--red);color:#fff}.bg{background:var(--gold);color:#411802}
+.bt{background:var(--teal);color:#fff}.bp{background:var(--purple);color:#fff}
+.bsm{padding:5px 9px;font-size:11px}.bfw{width:100%;padding:9px}
 
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  </head>
-  <body>
-    <div class="titan-background">
-      <span class="stars stars-L"></span>
-      <span class="stars stars-M"></span>
-      <span class="stars stars-S"></span>
+/* LANG SWITCHER */
+.lang-bar{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:6px 16px;background:#0a0a12;border-bottom:0.5px solid #ffffff0a}
+.lbtn{background:none;border:0.5px solid #ffffff18;border-radius:4px;color:#888;cursor:pointer;font-family:inherit;font-size:11px;padding:3px 9px;transition:all 0.15s}
+.lbtn.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+
+/* HERO */
+.hero{background:#0a0a12;padding:34px 16px 24px;border-bottom:0.5px solid #ffffff0e}
+.hb{display:inline-flex;align-items:center;gap:5px;background:#ffffff0f;border:0.5px solid #ffffff18;border-radius:16px;padding:3px 10px;font-size:10px;color:#aaa;margin-bottom:9px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block}
+.hero h1{font-size:26px;font-weight:700;line-height:1.2;max-width:380px;margin-bottom:7px}
+.hero h1 span{color:var(--red)}.hero p{color:#999;font-size:13px;max-width:340px;line-height:1.6;margin-bottom:14px}
+.ha{display:flex;gap:7px;flex-wrap:wrap}.hs{display:flex;gap:18px;margin-top:16px}
+.stn{font-size:17px;font-weight:700}.stl{font-size:9px;color:#666;margin-top:1px}
+
+/* SECTIONS */
+.sec{padding:16px 14px}.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.st{font-size:13px;font-weight:600}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:8px}
+.card{background:#1a1a25;border:0.5px solid #ffffff12;border-radius:8px;overflow:hidden;cursor:pointer;transition:transform 0.17s,border-color 0.17s}
+.card:hover{transform:translateY(-3px);border-color:#ffffff22}
+.ct{width:100%;aspect-ratio:16/9;background:#111120;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative}
+.cbg{position:absolute;top:4px;left:4px;font-size:10px;font-weight:600;border-radius:3px;padding:2px 5px}
+.bfr{background:#1D9E75;color:#fff}.bpr{background:var(--gold);color:#411802}.bnw{background:var(--red);color:#fff}.bcr{background:var(--purple);color:#fff}
+.pov{position:absolute;inset:0;background:#00000066;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s}
+.card:hover .pov{opacity:1}
+.pb{width:30px;height:30px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:11px}
+.cb{padding:7px 8px}.ctitle{font-size:11px;font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cm{display:flex;align-items:center;justify-content:space-between}
+.ccat{font-size:10px;color:#666}.cprice{font-size:10px;font-weight:600}
+.ctag{font-size:10px;color:var(--purple);margin-top:1px}
+
+/* PLANS */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:9px;margin-top:10px}
+.plan{background:#1a1a25;border:1px solid #ffffff18;border-radius:10px;padding:13px;position:relative}
+.plan.ft{border-color:var(--gold);border-width:1.5px}
+.ptop{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--gold);color:#411802;font-size:10px;font-weight:700;padding:2px 9px;border-radius:16px;white-space:nowrap}
+.pname{font-size:12px;font-weight:600;margin-bottom:3px}.ppr{font-size:18px;font-weight:700;margin-bottom:2px}
+.ppr span{font-size:10px;font-weight:400;color:#888}.pdsc{font-size:10px;color:#888;margin-bottom:8px}
+.pf{list-style:none;margin-bottom:10px}.pf li{font-size:10px;color:#ccc;padding:2px 0;display:flex;align-items:center;gap:4px}
+.pf li::before{content:'';display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* MODALS */
+.mo{display:none;position:fixed;inset:0;background:#000000cc;z-index:200;align-items:center;justify-content:center;padding:10px}
+.mo.open{display:flex}
+.modal{background:#15151f;border:0.5px solid #ffffff22;border-radius:12px;padding:17px;width:100%;max-width:410px;position:relative;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:14px;font-weight:600;margin-bottom:3px}.sub{font-size:11px;color:#888;margin-bottom:12px}
+.mclose{position:absolute;top:10px;right:10px;background:none;border:none;color:#666;font-size:15px;cursor:pointer}
+.fg{margin-bottom:8px}.fg label{display:block;font-size:11px;color:#aaa;margin-bottom:3px}
+.fg input,.fg select,.fg textarea{width:100%;background:#0e0e14;border:0.5px solid #ffffff28;border-radius:6px;padding:7px 9px;color:#f0f0f0;font-size:12px;font-family:inherit;outline:none}
+.fg input:focus,.fg select:focus{border-color:var(--red)}.fg textarea{resize:vertical;min-height:48px}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.tabs2{display:flex;margin-bottom:11px;border:0.5px solid #ffffff22;border-radius:6px;overflow:hidden}
+.tab2{flex:1;padding:6px;text-align:center;font-size:11px;cursor:pointer;background:none;border:none;color:#888;font-family:inherit;transition:all 0.15s}
+.tab2.active{background:var(--red);color:#fff}
+
+/* PAYMENT */
+.psteps{display:flex;margin-bottom:12px}
+.pst{flex:1;text-align:center;font-size:10px;padding:4px;border-bottom:2px solid #ffffff18;color:#666}
+.pst.active{color:#fff;border-color:var(--red)}.pst.done{color:var(--teal);border-color:var(--teal)}
+.pmethods{display:flex;gap:6px;margin-bottom:11px}
+.pme{flex:1;padding:9px 4px;border:0.5px solid #ffffff22;border-radius:7px;cursor:pointer;text-align:center;transition:all 0.15s}
+.pme.sel{border-color:var(--teal);background:#1D9E7515}
+.pmi{font-size:15px;margin-bottom:2px}.pml{font-size:10px;color:#aaa}
+.cvis{background:#1a1a35;border-radius:8px;padding:11px;margin-bottom:10px}
+.cvn{font-size:12px;letter-spacing:2px;font-weight:500;margin:6px 0 4px}
+.cvr{display:flex;justify-content:space-between;font-size:9px;color:#ffffffaa}
+.chip{width:22px;height:16px;background:var(--gold);border-radius:3px;opacity:0.9}
+.mcbox{background:#0e0e14;border:0.5px solid #1D9E7544;border-radius:8px;padding:11px;margin-bottom:10px}
+.mclogo{font-size:10px;font-weight:700;color:var(--teal);margin-bottom:7px}
+.pinrow{display:flex;gap:6px;margin-top:5px}
+.pinf{width:38px!important;height:38px;text-align:center;font-size:16px;background:#1a1a25;border:0.5px solid #ffffff28;border-radius:6px;color:#fff;font-family:inherit}
+.sbox{text-align:center;padding:12px 0}
+.ck{width:44px;height:44px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:19px;margin:0 auto 8px}
+.rcpt{background:#0e0e14;border-radius:6px;padding:9px;margin:8px 0;font-size:10px}
+.rrow{display:flex;justify-content:space-between;padding:2px 0;color:#aaa}
+.rrow.rt{color:#fff;font-weight:600;border-top:0.5px solid #ffffff18;margin-top:3px;padding-top:4px}
+
+/* PLAYER */
+.pbg{display:none;position:fixed;inset:0;background:#000000f0;z-index:300;flex-direction:column;align-items:center;justify-content:center;padding:10px}
+.pbg.open{display:flex}
+.pbox{background:#111;border-radius:10px;width:100%;max-width:680px;overflow:hidden;position:relative}
+.phdr{padding:9px 12px;background:#1a1a25;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:500}
+.ytf{width:100%;aspect-ratio:16/9;border:none;display:block}
+.lov{position:absolute;inset:0;background:#000000bb;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;z-index:5}
+.lov p{font-size:12px;color:#aaa;text-align:center;max-width:190px}
+
+/* QUIZ */
+.quiz-wrap{max-width:520px;margin:0 auto}
+.qcat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;margin-bottom:14px}
+.qcat{background:#1a1a25;border:0.5px solid #ffffff18;border-radius:9px;padding:12px 8px;text-align:center;cursor:pointer;transition:all 0.17s}
+.qcat:hover,.qcat.sel{border-color:var(--purple);background:#7F77DD15}
+.qcat-icon{font-size:24px;margin-bottom:4px}
+.qcat-name{font-size:11px;font-weight:500}
+.quiz-box{background:#1a1a25;border-radius:10px;padding:16px;border:0.5px solid #ffffff18}
+.qprog{height:3px;background:#ffffff12;border-radius:2px;margin-bottom:12px;overflow:hidden}
+.qprogf{height:100%;background:var(--purple);border-radius:2px;transition:width 0.4s}
+.qnum{font-size:10px;color:#666;margin-bottom:7px}
+.qquestion{font-size:14px;font-weight:500;line-height:1.5;margin-bottom:14px}
+.qopts{display:flex;flex-direction:column;gap:7px}
+.qopt{background:#111120;border:0.5px solid #ffffff18;border-radius:7px;padding:9px 12px;cursor:pointer;font-size:12px;text-align:left;font-family:inherit;color:#f0f0f0;transition:all 0.17s}
+.qopt:hover{border-color:var(--purple);background:#7F77DD12}
+.qopt.correct{border-color:var(--teal);background:#1D9E7520;color:var(--teal)}
+.qopt.wrong{border-color:var(--red);background:#E24B4A15;color:#f08080}
+.qopt:disabled{cursor:default}
+.qfeedback{font-size:11px;padding:8px 10px;border-radius:6px;margin-top:9px;line-height:1.5}
+.qfcor{background:#1D9E7515;color:var(--teal);border:0.5px solid #1D9E7540}
+.qfwrong{background:#E24B4A15;color:#f08080;border:0.5px solid #E24B4A40}
+.qresult{text-align:center;padding:8px 0}
+.qscore{font-size:34px;font-weight:700;margin-bottom:4px}
+.qtimer{display:flex;align-items:center;gap:5px;font-size:10px;color:#888;margin-bottom:10px}
+.tbar{flex:1;height:3px;background:#ffffff12;border-radius:2px;overflow:hidden}
+.tbarf{height:100%;background:var(--gold);transition:width 1s linear}
+.qloading{text-align:center;padding:30px;color:#888;font-size:13px}
+.qloading .spin{width:28px;height:28px;border:2px solid #ffffff18;border-top-color:var(--purple);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.qdiff{display:flex;gap:5px;margin-bottom:12px}
+.qdiffbtn{flex:1;padding:5px;border:0.5px solid #ffffff22;border-radius:6px;cursor:pointer;text-align:center;font-size:10px;background:none;font-family:inherit;color:#888;transition:all 0.15s}
+.qdiffbtn.sel{border-color:var(--gold);color:var(--gold);background:#EF9F2710}
+
+/* ADMIN / CREATOR */
+.fp{display:none;position:fixed;inset:0;background:#0a0a12;z-index:400;overflow-y:auto}
+.fp.open{display:block}
+.pnav{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:#0e0e14;border-bottom:0.5px solid #ffffff18;position:sticky;top:0;z-index:10;flex-wrap:wrap;gap:6px}
+.pbody{padding:14px;max-width:860px;margin:0 auto}
+.ptabs{display:flex;margin-bottom:14px;border-bottom:0.5px solid #ffffff18;flex-wrap:wrap;gap:2px}
+.ptab{padding:7px 10px;font-size:11px;cursor:pointer;background:none;border:none;color:#888;font-family:inherit;border-bottom:2px solid transparent;margin-bottom:-0.5px}
+.ptab.active{color:#fff;border-color:var(--red)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:8px;margin-bottom:14px}
+.sc{background:#1a1a25;border-radius:8px;padding:11px;border:0.5px solid #ffffff12}
+.scv{font-size:19px;font-weight:700;margin-bottom:2px}.scl{font-size:10px;color:#666}.sct{font-size:10px;color:var(--teal);margin-top:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{text-align:left;padding:6px 7px;color:#666;font-weight:500;border-bottom:0.5px solid #ffffff12}
+.tbl td{padding:6px 7px;border-bottom:0.5px solid #ffffff08;vertical-align:middle}
+.tbl tr:hover td{background:#ffffff04}
+.tbg{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:500}
+.tmc{background:#1D9E7520;color:#1D9E75}.tcard{background:#378ADD20;color:#378ADD}
+.delbtn{background:none;border:none;color:var(--red);cursor:pointer;font-size:11px;padding:2px 5px;border-radius:3px}
+.delbtn:hover{background:#E24B4A22}
+.af{background:#1a1a25;border-radius:8px;padding:13px;border:0.5px solid #ffffff12;margin-bottom:12px}
+.af h4{font-size:12px;font-weight:500;margin-bottom:9px}
+.obadge{display:inline-flex;align-items:center;gap:3px;background:#7F77DD22;border:0.5px solid #7F77DD44;border-radius:9px;padding:2px 8px;font-size:10px;color:var(--purple)}
+.cbadge3{display:inline-flex;align-items:center;gap:3px;background:#1D9E7522;border:0.5px solid #1D9E7544;border-radius:9px;padding:2px 8px;font-size:10px;color:var(--teal)}
+.act-item{display:flex;gap:6px;align-items:flex-start;padding:5px 0;border-bottom:0.5px solid #ffffff08}
+.act-time{font-size:9px;color:#555;white-space:nowrap;min-width:44px}
+.act-msg{font-size:11px;color:#ccc;line-height:1.5}
+.nores{padding:24px;text-align:center;color:#555;font-size:12px;display:none}
+.toast{position:fixed;bottom:12px;right:12px;background:#1D9E75;color:#fff;padding:9px 13px;border-radius:7px;font-size:11px;z-index:999;opacity:0;transform:translateY(8px);transition:all 0.28s;pointer-events:none;max-width:250px}
+.toast.show{opacity:1;transform:translateY(0)}
+footer{border-top:0.5px solid #ffffff0e;padding:10px 14px;text-align:center;color:#444;font-size:10px}
+select option{background:#1a1a25}
+
+/* ADMIN LINK PAGE */
+.admin-link-page{display:none;position:fixed;inset:0;background:#0a0a12;z-index:500;align-items:center;justify-content:center;flex-direction:column;padding:20px}
+.admin-link-page.open{display:flex}
+.admin-card{background:#15151f;border:0.5px solid #7F77DD44;border-radius:14px;padding:28px;width:100%;max-width:380px;text-align:center}
+</style>
+
+<!-- LANG BAR -->
+<div class="lang-bar" id="lang-bar">
+  <span style="font-size:10px;color:#555">Langue / Language / Lang :</span>
+  <button class="lbtn active" onclick="setLang('fr',this)">&#127467;&#127479; Français</button>
+  <button class="lbtn" onclick="setLang('en',this)">&#127482;&#127480; English</button>
+  <button class="lbtn" onclick="setLang('ht',this)">&#127477;&#127469; Kreyòl</button>
+</div>
+
+<nav>
+  <div class="logo">Stream<span>Fun</span></div>
+  <div class="sw"><span class="si">&#128269;</span><input type="text" id="si" placeholder="Rechercher..." oninput="doSearch(this.value)"></div>
+  <div class="navlinks">
+    <button class="nl act" onclick="showPage('home',this)" id="nlhome">&#127968; <span class="t" data-k="nav_home">Accueil</span></button>
+    <button class="nl" onclick="showPage('quiz',this)" id="nlquiz">&#129514; Quiz</button>
+    <button class="nl" onclick="showPage('plans',this)" id="nlplans">&#128179; <span class="t" data-k="nav_plans">Abonnements</span></button>
+  </div>
+  <div class="navr" id="navr">
+    <button class="btn bo bsm" onclick="openAuth('login')" id="btn-login">Connexion</button>
+    <button class="btn br bsm" onclick="openAuth('reg')" id="btn-reg">S'inscrire</button>
+  </div>
+</nav>
+
+<!-- HOME PAGE -->
+<div id="page-home">
+<div class="hero">
+  <div class="hb"><span class="dot"></span> <span class="t" data-k="hero_badge">MonCash &amp; Carte · Quiz IA illimité</span></div>
+  <h1><span class="t" data-k="hero_h1a">Divertissement</span> <span>&amp;</span> <span class="t" data-k="hero_h1b">Savoir</span></h1>
+  <p class="t" data-k="hero_p">Films, séries, mini vidéos, quiz IA illimité. Un seul abonnement mensuel.</p>
+  <div class="ha">
+    <button class="btn br" onclick="showPage('plans',document.getElementById('nlplans'))" id="cta-plans"><span class="t" data-k="cta_plans">Voir abonnements</span></button>
+    <button class="btn bo" onclick="showPage('quiz',document.getElementById('nlquiz'))">&#129514; Quiz</button>
+    <button class="btn bp" onclick="openAuth('creator')">&#11088; <span class="t" data-k="cta_creator">Créateur</span></button>
+  </div>
+  <div class="hs">
+    <div><div class="stn" id="lc">24</div><div class="stl t" data-k="stat_content">Contenus</div></div>
+    <div><div class="stn">&#8734;</div><div class="stl t" data-k="stat_quiz">Questions quiz IA</div></div>
+    <div><div class="stn" id="lcr">0</div><div class="stl t" data-k="stat_creators">Créateurs</div></div>
+  </div>
+</div>
+<div class="nores" id="nores">Aucun résultat pour "<span id="nrq"></span>"</div>
+<div class="sec" id="s-mini"><div class="sh"><div class="st">&#128514; Mini Vidéos</div></div><div class="cards" id="g-mini"></div></div>
+<div class="sec" id="s-films"><div class="sh"><div class="st">&#127916; Films</div></div><div class="cards" id="g-films"></div></div>
+<div class="sec" id="s-series"><div class="sh"><div class="st">&#128250; Séries</div></div><div class="cards" id="g-series"></div></div>
+<div class="sec" id="s-cv" style="display:none"><div class="sh"><div class="st">&#11088; <span class="t" data-k="creator_content">Contenus Créateurs</span></div></div><div class="cards" id="g-cv"></div></div>
+<footer>© 2026 StreamFun · MonCash Digicel &amp; Stripe</footer>
+</div>
+
+<!-- QUIZ PAGE -->
+<div id="page-quiz" style="display:none">
+<div class="sec">
+  <div class="sh"><div class="st">&#129514; Quiz — <span class="t" data-k="quiz_title">Culture Générale &amp; Sport</span></div></div>
+  <div class="quiz-wrap">
+    <div id="quiz-categories">
+      <p style="font-size:11px;color:#888;margin-bottom:10px" class="t" data-k="quiz_subtitle">Choisissez une catégorie. Questions générées par IA — illimitées !</p>
+      <div style="font-size:11px;color:#aaa;margin-bottom:8px" class="t" data-k="diff_label">Niveau :</div>
+      <div class="qdiff">
+        <button class="qdiffbtn sel" onclick="selDiff('easy',this)" id="d-easy">&#128994; <span class="t" data-k="diff_easy">Facile</span></button>
+        <button class="qdiffbtn" onclick="selDiff('medium',this)" id="d-med">&#128993; <span class="t" data-k="diff_med">Moyen</span></button>
+        <button class="qdiffbtn" onclick="selDiff('hard',this)" id="d-hard">&#128308; <span class="t" data-k="diff_hard">Difficile</span></button>
+      </div>
+      <div class="qcat-grid" id="qcat-grid"></div>
     </div>
-    <div class="marvellous-container">
-      <div class="header">
-        <h1><span class="title-marvel">Thanos</span> <span class="title-studios">JS</span></h1>
-        <h2>
-          Reduce the file size of your project down to 50%, <br />
-          by randomly deleting half of the files.
-        </h2>
-      </div>
-      <div class="installation-instructions">
-        <h3>Installation</h3>
-        <code>$ gem install power</code>
-        <code>$ gem install reality</code>
-        <code>$ gem install mind</code>
-        <code>$ gem install space</code>
-        <code>$ gem install time</code>
-        <code>$ gem install soul</code>
-      </div>
-      <div class="usage-instructions">
-        <h3>Basic Usage</h3>
-        <code>$ thanos snap-fingers --with-glove</code>
-      </div>
-      <div class="footer">
-        <img src="assets/glove.png" alt="thanos gauntlet but its like the classic emoji hands with an awful photoshop of stupid gems on it, because funny"/>
-        <p>
-          This whole site is obviously a parody, <br />
-          just to demo how awesome <a target="_blank" href="https://app.netlify.com/drop">Netlify Drop is — give it a try.</a>
-        </p>
+    <div id="quiz-loading" style="display:none">
+      <div class="qloading"><div class="spin"></div><div id="loading-txt">Génération des questions en cours...</div></div>
+    </div>
+    <div id="quiz-game" style="display:none">
+      <div class="quiz-box">
+        <div class="qtimer"><span id="qleft">20s</span><div class="tbar"><div class="tbarf" id="tbarf"></div></div><span id="qsc-live" style="color:var(--gold)">0 pts</span></div>
+        <div class="qprog"><div class="qprogf" id="qprogf"></div></div>
+        <div class="qnum" id="qnum"></div>
+        <div class="qquestion" id="qquestion"></div>
+        <div class="qopts" id="qopts"></div>
+        <div class="qfeedback" id="qfeedback" style="display:none"></div>
+        <button class="btn bt" id="qnextbtn" onclick="nextQ()" style="display:none;margin-top:10px;width:100%" class="t" data-k="next_q">Question suivante →</button>
       </div>
     </div>
-  </body>
-</html>
+    <div id="quiz-result" style="display:none">
+      <div class="quiz-box">
+        <div class="qresult">
+          <div class="qscore" id="qscore-val"></div>
+          <div style="font-size:13px;font-weight:500;margin-bottom:3px" id="qresult-msg"></div>
+          <div style="font-size:11px;color:#888;margin-bottom:14px" id="qresult-sub"></div>
+          <div style="display:flex;gap:7px;justify-content:center;flex-wrap:wrap">
+            <button class="btn bp" onclick="restartQuiz()">&#129514; <span class="t" data-k="replay">Rejouer</span></button>
+            <button class="btn bo" onclick="showCats()"><span class="t" data-k="change_cat">Changer catégorie</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PLANS PAGE -->
+<div id="page-plans" style="display:none">
+<div class="sec">
+  <div class="sh"><div class="st">&#128179; <span class="t" data-k="plans_title">Abonnements Mensuels</span></div></div>
+  <p style="font-size:11px;color:#888;margin-bottom:12px" class="t" data-k="plans_sub">Un seul abonnement, tout le contenu. MonCash ou carte. Annulable à tout moment.</p>
+  <div class="plans">
+    <div class="plan">
+      <div class="pname t" data-k="plan_free">Gratuit</div><div class="ppr">0 <span>HTG/mois</span></div>
+      <div class="pdsc t" data-k="plan_free_desc">Accès limité</div>
+      <ul class="pf"><li class="t" data-k="pf1">Mini vidéos gratuites</li><li>Quiz IA illimité &#129514;</li><li class="t" data-k="pf2">Qualité 720p</li></ul>
+      <button class="btn bo bfw" onclick="openAuth('reg')" class="t" data-k="btn_start">Commencer gratuitement</button>
+    </div>
+    <div class="plan ft">
+      <div class="ptop t" data-k="plan_pop">Plus populaire</div>
+      <div class="pname">Premium</div><div class="ppr">1 500 <span>HTG/mois</span></div>
+      <div class="pdsc t" data-k="plan_prem_desc">Accès illimité complet</div>
+      <ul class="pf"><li class="t" data-k="pp1">Tous les films &amp; séries</li><li class="t" data-k="pp2">Toutes les mini vidéos</li><li>Quiz avec classements &#129352;</li><li>4K · Sans pub · 2 écrans</li></ul>
+      <button class="btn bg bfw" onclick="openPay({title:'Abonnement Premium',price:1500,label:'1 500 HTG/mois',type:'sub'})">MonCash / Carte</button>
+    </div>
+    <div class="plan">
+      <div class="pname t" data-k="plan_creator">Créateur</div><div class="ppr">0 <span>HTG</span></div>
+      <div class="pdsc t" data-k="plan_creator_desc">Publiez &amp; monétisez</div>
+      <ul class="pf"><li class="t" data-k="cp1">Publiez vos vidéos</li><li class="t" data-k="cp2">Fixez votre prix</li><li class="t" data-k="cp3">Gains sur MonCash</li><li id="cfeat">Plateforme: 25%</li></ul>
+      <button class="btn bp bfw" onclick="openAuth('creator')">&#11088; <span class="t" data-k="btn_creator">Devenir créateur</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="mo" id="auth-modal">
+<div class="modal">
+  <button class="mclose" onclick="cm('auth-modal')">✕</button>
+  <h3 id="authtitle">Connexion</h3><p class="sub" id="authsub">Accédez à votre espace</p>
+  <div class="tabs2">
+    <button class="tab2 active" id="tl" onclick="swauth('login')"><span class="t" data-k="tab_login">Connexion</span></button>
+    <button class="tab2" id="tr" onclick="swauth('reg')"><span class="t" data-k="tab_reg">Inscription</span></button>
+    <button class="tab2" id="tc" onclick="swauth('creator')">&#11088; <span class="t" data-k="tab_creator">Créateur</span></button>
+  </div>
+  <div id="f-login">
+    <div class="fg"><label>Email</label><input type="email" id="le" placeholder="vous@email.com"></div>
+    <div class="fg"><label><span class="t" data-k="password">Mot de passe</span></label><input type="password" id="lp" placeholder="••••••••"></div>
+    <button class="btn br bfw" onclick="doLogin()"><span class="t" data-k="tab_login">Connexion</span></button>
+  </div>
+  <div id="f-reg" style="display:none">
+    <div class="fg"><label><span class="t" data-k="name">Prénom &amp; Nom</span></label><input type="text" id="rn" placeholder="Jean Dupont"></div>
+    <div class="fg"><label>Email</label><input type="email" id="re" placeholder="vous@email.com"></div>
+    <div class="fg"><label><span class="t" data-k="password">Mot de passe</span></label><input type="password" id="rp" placeholder="••••••••"></div>
+    <button class="btn br bfw" onclick="doReg()"><span class="t" data-k="btn_create">Créer mon compte</span></button>
+  </div>
+  <div id="f-creator" style="display:none">
+    <div class="fg"><label><span class="t" data-k="name">Prénom &amp; Nom</span></label><input type="text" id="cn" placeholder="Jean Dupont"></div>
+    <div class="fg"><label>Email</label><input type="email" id="ce" placeholder="vous@email.com"></div>
+    <div class="fg"><label><span class="t" data-k="moncash_num">Numéro MonCash</span></label><input type="tel" id="cmc" placeholder="509-XXXX-XXXX"></div>
+    <div class="fg"><label><span class="t" data-k="password">Mot de passe</span></label><input type="password" id="cp2" placeholder="••••••••"></div>
+    <button class="btn bp bfw" onclick="doCreator()">&#11088; <span class="t" data-k="btn_creator_create">Créer compte créateur</span></button>
+  </div>
+</div>
+</div>
+
+<!-- PLAYER -->
+<div class="pbg" id="player-modal">
+<div class="pbox">
+  <div class="phdr"><span id="ptitle">Titre</span><button style="background:none;border:none;color:#888;font-size:14px;cursor:pointer" onclick="closePlayer()">✕</button></div>
+  <div style="position:relative">
+    <iframe class="ytf" id="ytf" src="" allow="autoplay;fullscreen" allowfullscreen></iframe>
+    <div class="lov" id="lov" style="display:none">
+      <span style="font-size:34px">&#128274;</span>
+      <p class="t" data-k="lock_msg">Abonnez-vous pour accéder</p>
+      <button class="btn bg bsm" onclick="closePlayer();openPay({title:'Abonnement Premium',price:1500,label:'1 500 HTG/mois',type:'sub'})"><span class="t" data-k="subscribe">S'abonner</span></button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="mo" id="pay-modal">
+<div class="modal">
+  <button class="mclose" onclick="cm('pay-modal')">✕</button>
+  <div class="psteps"><div class="pst active" id="ps1"><span class="t" data-k="step_cart">Panier</span></div><div class="pst" id="ps2"><span class="t" data-k="step_pay">Paiement</span></div><div class="pst" id="ps3"><span class="t" data-k="step_confirm">Confirmation</span></div></div>
+  <div id="pf1"><h3 id="pay-ttl"></h3><p class="sub" id="pay-lbl"></p><div style="background:#1a1a25;border-radius:6px;padding:10px;font-size:11px;color:#aaa;line-height:1.7;margin-bottom:11px">&#10003; <span class="t" data-k="pay_feat1">Films, séries, mini vidéos illimitées</span><br>&#10003; Quiz IA &#129514;<br>&#10003; 4K · <span class="t" data-k="pay_feat2">Sans pub · Annulable</span></div><button class="btn bg bfw" onclick="gops(2)"><span class="t" data-k="choose_payment">Choisir le paiement</span> →</button></div>
+  <div id="pf2" style="display:none">
+    <h3><span class="t" data-k="payment_method">Mode de paiement</span></h3><p class="sub">&#128274; Sécurisé</p>
+    <div class="pmethods">
+      <div class="pme sel" id="pm-mc" onclick="selPM('mc')"><div class="pmi">&#128242;</div><div class="pml">MonCash</div></div>
+      <div class="pme" id="pm-card" onclick="selPM('card')"><div class="pmi">&#128179;</div><div class="pml"><span class="t" data-k="card">Carte</span></div></div>
+    </div>
+    <div id="mc-form">
+      <div class="mcbox"><div class="mclogo">&#128242; MonCash — Digicel Haiti</div>
+        <div class="fg"><label><span class="t" data-k="moncash_num">Numéro MonCash</span></label><input type="tel" id="mc-num" placeholder="509-XXXX-XXXX"></div>
+        <label style="font-size:10px;color:#aaa;display:block;margin-bottom:4px">PIN</label>
+        <div class="pinrow"><input type="password" maxlength="1" class="pinf" oninput="pn(this,0)"><input type="password" maxlength="1" class="pinf" oninput="pn(this,1)"><input type="password" maxlength="1" class="pinf" oninput="pn(this,2)"><input type="password" maxlength="1" class="pinf" oninput="pn(this,3)"></div>
+      </div>
+      <button class="btn bt bfw" onclick="procPay('mc')">&#128242; MonCash</button>
+    </div>
+    <div id="card-form" style="display:none">
+      <div class="cvis"><div style="display:flex;align-items:center;justify-content:space-between"><div class="chip"></div><span style="font-size:14px">&#128179;</span></div><div class="cvn" id="cvn">•••• •••• •••• ••••</div><div class="cvr"><div><div style="font-size:8px;opacity:0.6;margin-bottom:1px">TITULAIRE</div><div id="cvname">Votre Nom</div></div><div><div style="font-size:8px;opacity:0.6;margin-bottom:1px">EXPIRE</div><div id="cvexp">MM/AA</div></div></div></div>
+      <div class="fg"><label><span class="t" data-k="cardholder">Titulaire</span></label><input type="text" id="cname" placeholder="Jean Dupont" oninput="document.getElementById('cvname').textContent=this.value||'Votre Nom'"></div>
+      <div class="fg"><label><span class="t" data-k="card_num">Numéro</span></label><input type="text" id="cnum" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"></div>
+      <div class="fr2"><div class="fg"><label>Expiration</label><input type="text" id="cexp" placeholder="MM/AA" maxlength="5" oninput="fmtExp(this)"></div><div class="fg"><label>CVV</label><input type="text" id="ccvv" placeholder="•••" maxlength="3"></div></div>
+      <button class="btn br bfw" onclick="procPay('card')">&#128179; <span class="t" data-k="pay_now">Payer</span></button>
+    </div>
+  </div>
+  <div id="pf3" style="display:none"><div class="sbox"><div class="ck">&#10003;</div><h3 class="t" data-k="pay_success">Paiement réussi !</h3><div class="rcpt" id="receipt"></div><button class="btn bt bfw" style="margin-top:8px" onclick="cm('pay-modal')"><span class="t" data-k="start_watch">Commencer</span></button></div></div>
+</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="fp" id="admin-panel">
+  <div class="pnav">
+    <div style="font-size:14px;font-weight:700">Stream<span style="color:var(--red)">Fun</span> <span style="font-size:10px;color:var(--purple)">Propriétaire</span></div>
+    <div style="display:flex;gap:5px;align-items:center"><span class="obadge">&#128081; Propriétaire</span><button class="btn bo bsm" onclick="document.getElementById('admin-panel').classList.remove('open')">← <span class="t" data-k="back">Retour</span></button></div>
+  </div>
+  <div class="pbody">
+    <div class="ptabs">
+      <button class="ptab active" onclick="swA('dash',this)">&#128200; Dashboard</button>
+      <button class="ptab" onclick="swA('tx',this)">&#128184; Transactions</button>
+      <button class="ptab" onclick="swA('cr',this)">&#11088; Créateurs</button>
+      <button class="ptab" onclick="swA('cnt',this)">&#127916; Contenus</button>
+      <button class="ptab" onclick="swA('cfg',this)">&#9881; Config</button>
+    </div>
+    <div id="ap-dash"><div class="sg" id="admin-stats"></div><div style="background:#1a1a25;border-radius:8px;padding:12px;border:0.5px solid #ffffff12"><div style="font-size:12px;font-weight:500;margin-bottom:8px">Transactions récentes</div><div id="admin-act"></div></div></div>
+    <div id="ap-tx" style="display:none"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Réf.</th><th>Plan</th><th>Montant</th><th>Méthode</th><th>Date</th></tr></thead><tbody id="tx-body"></tbody></table></div></div>
+    <div id="ap-cr" style="display:none"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Créateur</th><th>MonCash</th><th>Vidéos</th><th>Revenus</th><th>Solde</th><th>Action</th></tr></thead><tbody id="cr-body"></tbody></table></div></div>
+    <div id="ap-cnt" style="display:none">
+      <div class="af"><h4>+ Ajouter contenu</h4>
+        <div class="fr2"><div class="fg"><label>Titre</label><input type="text" id="at" placeholder="Titre"></div><div class="fg"><label>Catégorie</label><select id="ac"><option value="mini">Mini Vidéo</option><option value="films">Film</option><option value="series">Série</option></select></div></div>
+        <div class="fg"><label>URL YouTube</label><input type="text" id="ay" placeholder="https://youtu.be/xxxxx"></div>
+        <div class="fr2"><div class="fg"><label>Accès</label><select id="afr"><option value="sub">Abonné</option><option value="free">Gratuit</option></select></div><div class="fg"><label>Emoji</label><input type="text" id="ae" placeholder="🎬" maxlength="2"></div></div>
+        <button class="btn br" onclick="adminAdd()">Publier</button>
+      </div>
+      <div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Contenu</th><th>Catégorie</th><th>Accès</th><th>Action</th></tr></thead><tbody id="cnt-body"></tbody></table></div>
+    </div>
+    <div id="ap-cfg" style="display:none">
+      <div class="af"><h4>&#128200; Commission &amp; MonCash</h4>
+        <div class="fr2"><div class="fg"><label>Commission (%)</label><input type="number" id="comm-in" min="5" max="60" value="25"></div><div class="fg"><label>Votre MonCash</label><input type="tel" id="owner-mc" placeholder="509-XXXX-XXXX"></div></div>
+        <button class="btn br" onclick="saveSettings()">Enregistrer &#10003;</button>
+      </div>
+      <div style="background:#1a1a25;border-radius:8px;padding:12px;border:0.5px solid #1D9E7544">
+        <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--teal)">&#128242; MonCash Merchant API</div>
+        <p style="font-size:11px;color:#888;line-height:1.6">Contactez <strong style="color:#fff">Digicel Business Haiti</strong> pour votre Merchant ID.</p>
+        <div class="fr2" style="margin-top:9px"><div class="fg"><label>Merchant ID</label><input type="text" placeholder="MonCash Merchant ID"></div><div class="fg"><label>Clé secrète</label><input type="password" placeholder="••••••••••"></div></div>
+        <button class="btn bt bsm">Connecter MonCash &#128242;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CREATOR PANEL -->
+<div class="fp" id="creator-panel">
+  <div class="pnav">
+    <div style="font-size:14px;font-weight:700">Stream<span style="color:var(--red)">Fun</span> <span style="font-size:10px;color:var(--teal)">Créateur</span></div>
+    <div style="display:flex;gap:5px;align-items:center"><span class="cbadge3">&#11088; Créateur</span><button class="btn bo bsm" onclick="document.getElementById('creator-panel').classList.remove('open')">← <span class="t" data-k="back">Retour</span></button></div>
+  </div>
+  <div class="pbody">
+    <div class="ptabs">
+      <button class="ptab active" onclick="swCP('cds',this)">&#128200; Revenus</button>
+      <button class="ptab" onclick="swCP('cvd',this)">&#127916; Mes vidéos</button>
+      <button class="ptab" onclick="swCP('cad',this)">+ Publier</button>
+      <button class="ptab" onclick="swCP('cpw',this)">&#128184; Retraits</button>
+    </div>
+    <div id="cp-cds"><div class="sg" id="cr-stats"></div><div style="background:#1a1a25;border-radius:8px;padding:12px;border:0.5px solid #ffffff12"><div style="font-size:12px;font-weight:500;margin-bottom:8px">Historique ventes</div><div id="cr-hist"></div></div></div>
+    <div id="cp-cvd" style="display:none"><div style="overflow-x:auto"><table class="tbl"><thead><tr><th>Vidéo</th><th>Prix</th><th>Ventes</th><th>Revenus</th><th>Action</th></tr></thead><tbody id="cvd-body"></tbody></table></div></div>
+    <div id="cp-cad" style="display:none">
+      <div class="af"><h4>&#127916; Publier une vidéo</h4>
+        <p style="font-size:10px;color:#888;margin-bottom:9px">Vous recevez <span id="cr-pct" style="color:var(--teal);font-weight:600">75%</span> de chaque vente.</p>
+        <div class="fr2"><div class="fg"><label>Titre</label><input type="text" id="vt" placeholder="Titre"></div><div class="fg"><label>Catégorie</label><select id="vcat"><option value="mini">Mini Vidéo</option><option value="films">Film</option><option value="series">Série</option></select></div></div>
+        <div class="fg"><label>URL YouTube</label><input type="text" id="vyt" placeholder="https://youtu.be/xxxxx"></div>
+        <div class="fr2"><div class="fg"><label>Prix HTG</label><input type="number" id="vpr" placeholder="500" min="100"></div><div class="fg"><label>Emoji</label><input type="text" id="vem" placeholder="🎬" maxlength="2"></div></div>
+        <button class="btn bp bfw" onclick="publishVideo()">Publier &#11088;</button>
+      </div>
+    </div>
+    <div id="cp-cpw" style="display:none">
+      <div class="sc" style="margin-bottom:11px"><div class="scl">Solde disponible</div><div class="scv" style="color:var(--teal)" id="cr-bal">0 HTG</div><div class="sct">MonCash: <span id="cr-mc">—</span></div></div>
+      <div class="af"><h4>&#128184; Retrait MonCash</h4>
+        <div class="fg"><label>Montant (HTG)</label><input type="number" id="wd" placeholder="500" min="100"></div>
+        <button class="btn bt bfw" onclick="reqWD()">&#128242; Demander retrait</button>
+      </div>
+      <div style="background:#1a1a25;border-radius:8px;padding:12px;border:0.5px solid #ffffff12"><div style="font-size:12px;font-weight:500;margin-bottom:6px">Historique</div><div id="wd-list"><p style="font-size:10px;color:#555">Aucun retrait</p></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const OE='proprietaire@streamfun.com',OP='StreamFun2026';
+let isOwner=false,isLoggedIn=false,isCreator=false,isPremium=false;
+let cUser=null,cCreator=null,cPayItem=null,payM='mc',curLang='fr',curDiff='easy';
+let txs=[],creators=[],cvids=[],cfg={commissionRate:25,ownerMC:''};
+let curQ=[],qi=0,score=0,qTimer=null,selCat='';
+
+// ── TRANSLATIONS ──
+const LANGS={
+  fr:{nav_home:'Accueil',nav_plans:'Abonnements',hero_badge:'MonCash & Carte · Quiz IA illimité',hero_h1a:'Divertissement',hero_h1b:'Savoir',hero_p:'Films, séries, mini vidéos, quiz IA illimité. Un seul abonnement mensuel.',cta_plans:'Voir abonnements',cta_creator:'Créateur',stat_content:'Contenus',stat_quiz:'Questions quiz IA',stat_creators:'Créateurs',quiz_title:'Culture Générale & Sport',quiz_subtitle:'Choisissez une catégorie. Questions générées par IA — illimitées !',diff_label:'Niveau :',diff_easy:'Facile',diff_med:'Moyen',diff_hard:'Difficile',creator_content:'Contenus Créateurs',plans_title:'Abonnements Mensuels',plans_sub:'Un seul abonnement, tout le contenu.',plan_free:'Gratuit',plan_free_desc:'Accès limité',pf1:'Mini vidéos gratuites',pf2:'Qualité 720p',plan_pop:'Plus populaire',plan_prem_desc:'Accès illimité complet',pp1:'Tous les films & séries',pp2:'Toutes les mini vidéos',plan_creator:'Créateur',plan_creator_desc:'Publiez & monétisez',cp1:'Publiez vos vidéos',cp2:'Fixez votre prix',cp3:'Gains sur MonCash',tab_login:'Connexion',tab_reg:'Inscription',tab_creator:'Créateur',password:'Mot de passe',name:'Prénom & Nom',moncash_num:'Numéro MonCash',btn_create:'Créer mon compte',btn_creator_create:'Créer compte créateur',btn_start:'Commencer gratuitement',btn_creator:'Devenir créateur',lock_msg:'Abonnez-vous pour accéder',subscribe:"S'abonner",step_cart:'Panier',step_pay:'Paiement',step_confirm:'Confirmation',pay_feat1:'Films, séries, mini vidéos illimitées',pay_feat2:'Sans pub · Annulable',choose_payment:'Choisir le paiement',payment_method:'Mode de paiement',card:'Carte',cardholder:'Titulaire',card_num:'Numéro',pay_now:'Payer',pay_success:'Paiement réussi !',start_watch:'Commencer',back:'Retour',next_q:'Question suivante →',replay:'Rejouer',change_cat:'Changer catégorie',loading_q:'Génération des questions en cours...',q_of:'Question',q_pts:'pts',correct:'Correct !',incorrect:'Incorrect.',time_up:'Temps écoulé !',excellent:'Excellent ! 🏆',good:'Bien joué ! 🎉',courage:'Courage ! 💪',score_max:'score max'},
+  en:{nav_home:'Home',nav_plans:'Subscriptions',hero_badge:'MonCash & Card · Unlimited AI Quiz',hero_h1a:'Entertainment',hero_h1b:'Knowledge',hero_p:'Movies, series, videos, unlimited AI quiz. One monthly subscription.',cta_plans:'See subscriptions',cta_creator:'Creator',stat_content:'Content',stat_quiz:'AI Quiz Questions',stat_creators:'Creators',quiz_title:'General Knowledge & Sport',quiz_subtitle:'Choose a category. AI-generated questions — unlimited!',diff_label:'Level:',diff_easy:'Easy',diff_med:'Medium',diff_hard:'Hard',creator_content:'Creator Content',plans_title:'Monthly Subscriptions',plans_sub:'One subscription, all content.',plan_free:'Free',plan_free_desc:'Limited access',pf1:'Free mini videos',pf2:'720p quality',plan_pop:'Most popular',plan_prem_desc:'Full unlimited access',pp1:'All movies & series',pp2:'All mini videos',plan_creator:'Creator',plan_creator_desc:'Publish & monetize',cp1:'Publish your videos',cp2:'Set your price',cp3:'Earnings on MonCash',tab_login:'Login',tab_reg:'Register',tab_creator:'Creator',password:'Password',name:'First & Last Name',moncash_num:'MonCash Number',btn_create:'Create my account',btn_creator_create:'Create creator account',btn_start:'Start for free',btn_creator:'Become creator',lock_msg:'Subscribe to access this content',subscribe:'Subscribe',step_cart:'Cart',step_pay:'Payment',step_confirm:'Confirmation',pay_feat1:'Unlimited movies, series, videos',pay_feat2:'Ad-free · Cancelable',choose_payment:'Choose payment',payment_method:'Payment method',card:'Card',cardholder:'Cardholder',card_num:'Number',pay_now:'Pay now',pay_success:'Payment successful!',start_watch:'Start watching',back:'Back',next_q:'Next question →',replay:'Play again',change_cat:'Change category',loading_q:'Generating questions...',q_of:'Question',q_pts:'pts',correct:'Correct!',incorrect:'Incorrect.',time_up:'Time up!',excellent:'Excellent! 🏆',good:'Well done! 🎉',courage:'Keep going! 💪',score_max:'max score'},
+  ht:{nav_home:'Akèy',nav_plans:'Abonnman',hero_badge:'MonCash & Kat · Quiz IA san limit',hero_h1a:'Amizman',hero_h1b:'Konesans',hero_p:'Fim, seri, ti videyo, quiz IA san limit. Yon sèl abonnman chak mwa.',cta_plans:'Wè abonnman',cta_creator:'Kreyatè',stat_content:'Kontni',stat_quiz:'Kesyon Quiz IA',stat_creators:'Kreyatè',quiz_title:'Konesans Jeneral & Espò',quiz_subtitle:'Chwazi yon kategori. Kesyon IA — san limit!',diff_label:'Nivo:',diff_easy:'Fasil',diff_med:'Mwayen',diff_hard:'Difisil',creator_content:'Kontni Kreyatè',plans_title:'Abonnman Mansyèl',plans_sub:'Yon abonnman, tout kontni.',plan_free:'Gratis',plan_free_desc:'Aksè limite',pf1:'Ti videyo gratis',pf2:'Kalite 720p',plan_pop:'Pi popilè',plan_prem_desc:'Aksè konplè',pp1:'Tout fim & seri',pp2:'Tout mini videyo',plan_creator:'Kreyatè',plan_creator_desc:'Pibliye & vann',cp1:'Pibliye videyo ou',cp2:'Fikse pri ou',cp3:'Gagnanm sou MonCash',tab_login:'Koneksyon',tab_reg:'Enskripsyon',tab_creator:'Kreyatè',password:'Modpas',name:'Prenon & Non',moncash_num:'Nimewo MonCash',btn_create:'Kreye kont mwen',btn_creator_create:'Kreye kont kreyatè',btn_start:'Kòmanse gratis',btn_creator:'Vin kreyatè',lock_msg:'Abonnew pou wè kontni sa',subscribe:'Abonnew',step_cart:'Panyè',step_pay:'Peman',step_confirm:'Konfirmasyon',pay_feat1:'Fim, seri, videyo san limit',pay_feat2:'San piblisite · Anile nenpòt ki lè',choose_payment:'Chwazi peman',payment_method:'Metòd peman',card:'Kat',cardholder:'Non titilè',card_num:'Nimewo',pay_now:'Peye kounye a',pay_success:'Peman reyisi!',start_watch:'Kòmanse gade',back:'Tounen',next_q:'Pwochen kesyon →',replay:'Rejwe',change_cat:'Chanje kategori',loading_q:'Ap jenere kesyon...',q_of:'Kesyon',q_pts:'pwen',correct:'Kòrèk!',incorrect:'Mal.',time_up:'Tan fini!',excellent:'Ekselan! 🏆',good:'Bravo! 🎉',courage:'Kouraj! 💪',score_max:'skor maks'}
+};
+
+const QCATS_FR=[
+  {name:'Géographie',icon:'🌍',nameEn:'Geography',nameHt:'Jewografi'},
+  {name:'Histoire',icon:'📚',nameEn:'History',nameHt:'Istwa'},
+  {name:'Science',icon:'🔬',nameEn:'Science',nameHt:'Syans'},
+  {name:'Haïti',icon:'🇭🇹',nameEn:'Haiti',nameHt:'Ayiti'},
+  {name:'Football',icon:'⚽',nameEn:'Football / Soccer',nameHt:'Foutbòl'},
+  {name:'Basketball',icon:'🏀',nameEn:'Basketball',nameHt:'Baskètbòl'},
+  {name:'Technologie',icon:'💻',nameEn:'Technology',nameHt:'Teknoloji'},
+  {name:'Cinéma',icon:'🎬',nameEn:'Cinema',nameHt:'Sinema'},
+];
+
+function t(k){return(LANGS[curLang]||LANGS.fr)[k]||k;}
+
+function setLang(l,btn){
+  curLang=l;
+  document.querySelectorAll('.lbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.t[data-k]').forEach(el=>{
+    const v=t(el.dataset.k);if(v)el.textContent=v;
+  });
+  document.getElementById('si').placeholder=l==='fr'?'Rechercher...':l==='en'?'Search...':'Chèche...';
+  if(document.getElementById('page-quiz').style.display!=='none')renderQCats();
+}
+
+function renderQCats(){
+  const g=document.getElementById('qcat-grid');g.innerHTML='';
+  QCATS_FR.forEach(c=>{
+    const el=document.createElement('div');el.className='qcat';
+    const name=curLang==='en'?c.nameEn:curLang==='ht'?c.nameHt:c.name;
+    el.innerHTML=`<div class="qcat-icon">${c.icon}</div><div class="qcat-name">${name}</div><div style="font-size:9px;color:#555;margin-top:2px">IA · ∞</div>`;
+    el.onclick=()=>startQuizAI(c.name,name);
+    g.appendChild(el);
+  });
+}
+
+function selDiff(d,btn){curDiff=d;document.querySelectorAll('.qdiffbtn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+
+async function startQuizAI(catEn,catDisplay){
+  selCat=catDisplay;
+  document.getElementById('quiz-categories').style.display='none';
+  document.getElementById('quiz-loading').style.display='block';
+  document.getElementById('quiz-game').style.display='none';
+  document.getElementById('quiz-result').style.display='none';
+  document.getElementById('loading-txt').textContent=t('loading_q');
+
+  const langName=curLang==='fr'?'French':curLang==='ht'?'Haitian Creole':'English';
+  const diffName={easy:'easy (basic knowledge)',medium:'medium (requires specific knowledge)',hard:'hard (expert level)'}[curDiff];
+  const prompt=`Generate exactly 8 multiple-choice quiz questions about "${catEn}" in ${langName}.
+Difficulty: ${diffName}.
+Return ONLY valid JSON array, no markdown, no explanation:
+[{"q":"question text","opts":["A","B","C","D"],"ans":0,"exp":"brief explanation"}]
+Rules: ans is index of correct answer (0-3). Each option must be different. Questions must be factually correct. Vary the correct answer position.`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const raw=data.content.map(i=>i.text||'').join('');
+    const clean=raw.replace(/```json|```/g,'').trim();
+    curQ=JSON.parse(clean);
+  }catch(e){
+    curQ=[{q:'Erreur de connexion. Vérifiez votre connexion internet.',opts:['Retour','Retour','Retour','Retour'],ans:0,exp:''}];
+  }
+
+  document.getElementById('quiz-loading').style.display='none';
+  document.getElementById('quiz-game').style.display='block';
+  qi=0;score=0;
+  showQ();
+}
+
+function showQ(){
+  if(qi>=curQ.length){endQuiz();return;}
+  const q=curQ[qi];
+  document.getElementById('qprogf').style.width=Math.round(qi/curQ.length*100)+'%';
+  document.getElementById('qnum').textContent=t('q_of')+' '+(qi+1)+' / '+curQ.length+' · '+selCat;
+  document.getElementById('qquestion').textContent=q.q;
+  document.getElementById('qfeedback').style.display='none';
+  document.getElementById('qnextbtn').style.display='none';
+  document.getElementById('qsc-live').textContent=score+' '+t('q_pts');
+  const og=document.getElementById('qopts');og.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');b.className='qopt';b.textContent=o;
+    b.onclick=()=>answerQ(b,i===q.ans,q.exp);
+    og.appendChild(b);
+  });
+  startTimer();
+}
+
+let timerSec=20;
+function startTimer(){
+  clearInterval(qTimer);timerSec=20;
+  document.getElementById('tbarf').style.width='100%';
+  document.getElementById('qleft').textContent='20s';
+  qTimer=setInterval(()=>{
+    timerSec--;
+    document.getElementById('tbarf').style.width=(timerSec/20*100)+'%';
+    document.getElementById('qleft').textContent=timerSec+'s';
+    if(timerSec<=0){clearInterval(qTimer);timeUp();}
+  },1000);
+}
+function timeUp(){
+  document.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('qfeedback');fb.className='qfeedback qfwrong';fb.textContent=t('time_up')+(curQ[qi].exp?' '+curQ[qi].exp:'');fb.style.display='block';
+  document.getElementById('qnextbtn').style.display='block';
+}
+function answerQ(btn,correct,exp){
+  clearInterval(qTimer);
+  document.querySelectorAll('.qopt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('qfeedback');
+  if(correct){
+    btn.className='qopt correct';const pts=Math.max(50,timerSec*10);score+=pts;
+    document.getElementById('qsc-live').textContent=score+' '+t('q_pts');
+    fb.className='qfeedback qfcor';fb.textContent='✓ '+t('correct')+' +'+ pts+' '+t('q_pts')+(exp?' · '+exp:'');
+  }else{
+    btn.className='qopt wrong';
+    document.querySelectorAll('.qopt').forEach((b,i)=>{if(i===curQ[qi].ans)b.className='qopt correct';});
+    fb.className='qfeedback qfwrong';fb.textContent='✗ '+t('incorrect')+(exp?' '+exp:'');
+  }
+  fb.style.display='block';document.getElementById('qnextbtn').style.display='block';
+}
+function nextQ(){qi++;showQ();}
+function endQuiz(){
+  document.getElementById('quiz-game').style.display='none';document.getElementById('quiz-result').style.display='block';
+  const pct=Math.round(score/(curQ.length*200)*100)||0;
+  document.getElementById('qscore-val').textContent=score+' '+t('q_pts');
+  document.getElementById('qresult-msg').textContent=pct>=80?t('excellent'):pct>=50?t('good'):t('courage');
+  document.getElementById('qresult-sub').textContent=selCat+' · '+(curQ.length*200)+' '+t('score_max');
+}
+function restartQuiz(){startQuizAI(selCat,selCat);}
+function showCats(){document.getElementById('quiz-categories').style.display='block';document.getElementById('quiz-game').style.display='none';document.getElementById('quiz-result').style.display='none';}
+
+// DATA
+let miniData=[
+  {id:1,emoji:'😂',title:'Me at the Zoo',cat:'Classique',free:true,badge:'free',ytId:'jNQXAC9IVRw'},
+  {id:2,emoji:'🎵',title:'Gangnam Style',cat:'Viral',free:true,badge:'free',ytId:'9bZkp7q19f0'},
+  {id:3,emoji:'😆',title:'Never Gonna Give You Up',cat:'Mème',free:true,badge:'free',ytId:'dQw4w9WgXcQ'},
+  {id:4,emoji:'🤣',title:'Blagues Épiques',cat:'Humour',free:false,badge:'premium',ytId:'9bZkp7q19f0'},
+];
+let filmsData=[
+  {id:7,emoji:'🚀',title:'Cosmos Odyssey',cat:'SF',free:false,badge:'new',ytId:'dQw4w9WgXcQ'},
+  {id:8,emoji:'❤️',title:'Paris en Amour',cat:'Romantique',free:false,badge:'premium',ytId:'9bZkp7q19f0'},
+  {id:9,emoji:'👻',title:'La Maison Hantée',cat:'Horreur',free:false,badge:'premium',ytId:'OPf0YbXqDm0'},
+  {id:10,emoji:'⚔️',title:'Les Guerriers',cat:'Action',free:false,badge:'new',ytId:'jNQXAC9IVRw'},
+];
+let seriesData=[
+  {id:13,emoji:'🌆',title:'Lumières de la Ville',cat:'Drame',free:false,badge:'new',ytId:'OPf0YbXqDm0'},
+  {id:14,emoji:'🧬',title:'Code Vital',cat:'Médical',free:false,badge:'premium',ytId:'jNQXAC9IVRw'},
+  {id:15,emoji:'🤖',title:'Androïdes',cat:'SF',free:false,badge:'new',ytId:'9bZkp7q19f0'},
+];
+
+async function init(){
+  try{const r=await window.storage.get('sf_tx3');txs=r?JSON.parse(r.value):[];}catch(e){txs=[];}
+  try{const r=await window.storage.get('sf_cr3');creators=r?JSON.parse(r.value):[];}catch(e){creators=[];}
+  try{const r=await window.storage.get('sf_cv3');cvids=r?JSON.parse(r.value):[];}catch(e){cvids=[];}
+  try{const r=await window.storage.get('sf_cfg3');if(r)cfg=JSON.parse(r.value);}catch(e){}
+  renderAll();updateHero();updateComm();
+  if(location.hash==='#admin'){openAdminDirect();}
+}
+async function sav(k,v){try{await window.storage.set(k,JSON.stringify(v));}catch(e){}}
+
+function mkCard(d,cv=false){
+  const bc=d.free?'bfr':d.badge==='new'?'bnw':cv?'bcr':'bpr';
+  const lbl=d.free?'Gratuit':'Premium';
+  const el=document.createElement('div');el.className='card';
+  el.innerHTML=`<div class="ct"><span style="position:relative;z-index:1">${d.emoji}</span><span class="cbg ${bc}">${lbl}</span><div class="pov"><div class="pb">▶</div></div></div><div class="cb"><div class="ctitle">${d.title}</div><div class="cm"><span class="ccat">${d.cat}</span><span class="cprice" style="color:${d.free?'var(--teal)':'var(--purple)'}">${d.free?'Gratuit':'Abonné'}</span></div>${cv&&d.creatorName?'<div class="ctag">par '+d.creatorName+'</div>':''}</div>`;
+  el.onclick=()=>playContent(d);return el;
+}
+function rGrid(data,id,cv=false){const g=document.getElementById(id);g.innerHTML='';data.forEach(d=>g.appendChild(mkCard(d,cv)));}
+function renderAll(){
+  rGrid(miniData,'g-mini');rGrid(filmsData,'g-films');rGrid(seriesData,'g-series');
+  if(cvids.length){rGrid(cvids,'g-cv',true);document.getElementById('s-cv').style.display='';}
+  else document.getElementById('s-cv').style.display='none';
+}
+function updateHero(){
+  document.getElementById('lc').textContent=miniData.length+filmsData.length+seriesData.length+cvids.length;
+  document.getElementById('lcr').textContent=creators.length;
+}
+function updateComm(){document.getElementById('cr-pct').textContent=(100-cfg.commissionRate)+'%';document.getElementById('cfeat').textContent='Plateforme: '+cfg.commissionRate+'%';}
+
+function showPage(p,btn){
+  ['home','quiz','plans'].forEach(x=>document.getElementById('page-'+x).style.display=x===p?'block':'none');
+  document.querySelectorAll('.nl').forEach(b=>b.classList.remove('act'));
+  if(btn)btn.classList.add('act');
+  if(p==='quiz')renderQCats();
+}
+
+function doSearch(q){
+  const v=q.trim().toLowerCase();if(!v){renderAll();return;}
+  const all=[...miniData,...filmsData,...seriesData,...cvids];
+  const res=all.filter(d=>d.title.toLowerCase().includes(v)||d.cat.toLowerCase().includes(v));
+  showPage('home',null);document.getElementById('g-mini').innerHTML='';
+  if(!res.length){document.getElementById('nores').style.display='block';document.getElementById('nrq').textContent=q;}
+  else{document.getElementById('nores').style.display='none';res.forEach(d=>document.getElementById('g-mini').appendChild(mkCard(d,!!d.creatorId)));}
+}
+
+function openAuth(t2){document.getElementById('auth-modal').classList.add('open');swauth(t2);}
+function cm(id){document.getElementById(id).classList.remove('open');}
+function swauth(tab){
+  ['login','reg','creator'].forEach(x=>document.getElementById('f-'+x).style.display='none');
+  document.getElementById('f-'+tab).style.display='block';
+  document.getElementById('tl').className='tab2'+(tab==='login'?' active':'');
+  document.getElementById('tr').className='tab2'+(tab==='reg'?' active':'');
+  document.getElementById('tc').className='tab2'+(tab==='creator'?' active':'');
+}
+function doLogin(){
+  const e=document.getElementById('le').value.trim(),p=document.getElementById('lp').value.trim();
+  if(!e||!p){toast('Remplissez tous les champs.');return;}
+  if(e===OE&&p===OP){isOwner=true;isLoggedIn=true;isPremium=true;cm('auth-modal');setNavO();toast('Bienvenue Propriétaire ! 👑');return;}
+  const cr=creators.find(c=>c.email===e&&c.pass===p);
+  if(cr){isCreator=true;isLoggedIn=true;cCreator=cr;cm('auth-modal');setNavC();toast('Bienvenue, '+cr.name+' ⭐');return;}
+  isLoggedIn=true;cUser={email:e};cm('auth-modal');setNavU();toast('Bienvenue ! 🎉');
+}
+function doReg(){
+  const n=document.getElementById('rn').value.trim(),e=document.getElementById('re').value.trim(),p=document.getElementById('rp').value.trim();
+  if(!n||!e||!p){toast('Remplissez tous les champs.');return;}
+  isLoggedIn=true;cUser={name:n,email:e};cm('auth-modal');setNavU();toast('Bienvenue '+n+' ! 🎉');
+}
+async function doCreator(){
+  const n=document.getElementById('cn').value.trim(),e=document.getElementById('ce').value.trim(),mc=document.getElementById('cmc').value.trim(),p=document.getElementById('cp2').value.trim();
+  if(!n||!e||!mc||!p){toast('Remplissez tous les champs.');return;}
+  const c={id:'CR'+Date.now(),name:n,email:e,moncash:mc,pass:p,balance:0,totalEarned:0,joined:new Date().toLocaleDateString('fr-FR')};
+  creators.push(c);await sav('sf_cr3',creators);isCreator=true;isLoggedIn=true;cCreator=c;cm('auth-modal');setNavC();updateHero();toast('Compte créateur créé ! ⭐');
+}
+function setNavU(){document.getElementById('navr').innerHTML=`<span style="font-size:10px;color:#aaa">👤 ${cUser?.name||'Compte'}</span><button class="btn bg bsm" onclick="openPay({title:'Premium',price:1500,label:'1 500 HTG/mois',type:'sub'})">Premium</button><button class="btn bo bsm" onclick="logout()">Déco.</button>`;}
+function setNavO(){document.getElementById('navr').innerHTML=`<span class="obadge">👑 Propriétaire</span><button class="btn br bsm" onclick="openAdmin()">Admin</button><button class="btn bo bsm" onclick="logout()">Déco.</button>`;}
+function setNavC(){document.getElementById('navr').innerHTML=`<span class="cbadge3">⭐ Créateur</span><button class="btn bp bsm" onclick="openCP()">Mon espace</button><button class="btn bo bsm" onclick="logout()">Déco.</button>`;}
+function logout(){isOwner=false;isLoggedIn=false;isCreator=false;isPremium=false;cUser=null;cCreator=null;document.getElementById('navr').innerHTML=`<button class="btn bo bsm" onclick="openAuth('login')">Connexion</button><button class="btn br bsm" onclick="openAuth('reg')">S'inscrire</button>`;}
+
+function playContent(d){
+  document.getElementById('ptitle').textContent=d.title;
+  const lov=document.getElementById('lov');
+  if(d.free||isPremium||isOwner){lov.style.display='none';document.getElementById('ytf').src=`https://www.youtube.com/embed/${d.ytId}?autoplay=1&rel=0`;}
+  else{lov.style.display='flex';document.getElementById('ytf').src='';}
+  document.getElementById('player-modal').classList.add('open');
+}
+function closePlayer(){document.getElementById('player-modal').classList.remove('open');document.getElementById('ytf').src='';}
+
+function openPay(item){
+  cPayItem=item;
+  document.getElementById('pay-ttl').textContent=item.title;
+  document.getElementById('pay-lbl').textContent=item.label;
+  gops(1);selPM('mc');document.getElementById('pay-modal').classList.add('open');
+}
+function gops(n){[1,2,3].forEach(i=>{document.getElementById('pf'+i).style.display=i===n?'block':'none';document.getElementById('ps'+i).className='pst'+(i<n?' done':i===n?' active':'');});}
+function selPM(m){payM=m;document.getElementById('pm-mc').className='pme'+(m==='mc'?' sel':'');document.getElementById('pm-card').className='pme'+(m==='card'?' sel':'');document.getElementById('mc-form').style.display=m==='mc'?'block':'none';document.getElementById('card-form').style.display=m==='card'?'block':'none';}
+function pn(el,i){const ps=document.querySelectorAll('.pinf');if(el.value&&i<3)ps[i+1].focus();}
+function fmtCard(el){let v=el.value.replace(/\D/g,'').slice(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();document.getElementById('cvn').textContent=el.value||'•••• •••• •••• ••••';}
+function fmtExp(el){let v=el.value.replace(/\D/g,'');if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2,4);el.value=v;document.getElementById('cvexp').textContent=el.value||'MM/AA';}
+
+async function procPay(method){
+  const item=cPayItem;if(!item)return;
+  if(method==='mc'){const num=document.getElementById('mc-num').value;const pin=[...document.querySelectorAll('.pinf')].map(i=>i.value).join('');if(num.length<8||pin.length<4){toast('Numéro MonCash et PIN requis.');return;}}
+  else if(document.getElementById('cnum').value.replace(/\s/g,'').length<16){toast('Vérifiez vos informations.');return;}
+  const now=new Date();
+  const tx={id:'TXN'+Date.now(),title:item.title,amount:item.price,platformShare:item.price,method,date:now.toLocaleDateString('fr-FR')+' '+now.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})};
+  txs.unshift(tx);await sav('sf_tx3',txs);
+  isPremium=true;isLoggedIn=true;if(!cUser&&!isCreator)setNavU();
+  document.getElementById('receipt').innerHTML=`<div class="rrow"><span>Plan</span><span>${item.title}</span></div><div class="rrow"><span>Mode</span><span>${method==='mc'?'MonCash':'Carte'}</span></div><div class="rrow rt"><span>Montant</span><span>${item.price.toLocaleString()} HTG</span></div><div class="rrow" style="color:var(--teal)"><span>Réf.</span><span>${tx.id}</span></div>`;
+  gops(3);toast('Paiement confirmé ! ✓');
+}
+
+function openAdmin(){document.getElementById('admin-panel').classList.add('open');swA('dash',document.querySelector('#admin-panel .ptab'));rAdminDash();rTx();rCrT();rCntT();document.getElementById('comm-in').value=cfg.commissionRate;document.getElementById('owner-mc').value=cfg.ownerMC||'';}
+function openAdminDirect(){if(document.getElementById('admin-panel'))openAdmin();}
+function swA(t2,btn){['dash','tx','cr','cnt','cfg'].forEach(x=>document.getElementById('ap-'+x).style.display=x===t2?'block':'none');document.querySelectorAll('#admin-panel .ptab').forEach(b=>b.className='ptab');btn.className='ptab active';}
+
+function rAdminDash(){
+  const plat=txs.reduce((s,t2)=>s+t2.platformShare,0);
+  document.getElementById('admin-stats').innerHTML=`<div class="sc"><div class="scv" style="color:var(--gold)">${plat.toLocaleString()} HTG</div><div class="scl">Revenus totaux</div><div class="sct">Temps réel 📈</div></div><div class="sc"><div class="scv" style="color:var(--teal)">${txs.length}</div><div class="scl">Transactions</div></div><div class="sc"><div class="scv" style="color:var(--purple)">${creators.length}</div><div class="scl">Créateurs</div></div><div class="sc"><div class="scv" style="color:var(--blue)">${cvids.length}</div><div class="scl">Vidéos créateurs</div></div><div class="sc"><div class="scv">8</div><div class="scl">Catégories Quiz</div></div><div class="sc"><div class="scv">∞</div><div class="scl">Questions IA</div></div>`;
+  document.getElementById('admin-act').innerHTML=txs.slice(0,10).map(t2=>`<div class="act-item"><span class="act-time">${t2.date.split(' ')[1]||'—'}</span><span class="act-msg">${t2.method==='mc'?'📱':'💳'} <strong>${t2.id}</strong> · ${t2.title} · <span style="color:var(--teal)">+${t2.platformShare} HTG</span></span></div>`).join('')||'<p style="font-size:11px;color:#555">Aucune transaction encore.</p>';
+}
+function rTx(){document.getElementById('tx-body').innerHTML=txs.map(t2=>`<tr><td style="color:#555;font-size:10px">${t2.id}</td><td>${t2.title}</td><td style="color:var(--gold)">${t2.amount} HTG</td><td><span class="tbg ${t2.method==='mc'?'tmc':'tcard'}">${t2.method==='mc'?'MonCash':'Carte'}</span></td><td style="color:#555;font-size:10px">${t2.date}</td></tr>`).join('')||'<tr><td colspan="5" style="text-align:center;color:#555;padding:12px">Aucune transaction</td></tr>';}
+function rCrT(){document.getElementById('cr-body').innerHTML=!creators.length?'<tr><td colspan="6" style="text-align:center;color:#555;padding:12px">Aucun créateur</td></tr>':creators.map(c=>`<tr><td><strong>${c.name}</strong></td><td style="color:var(--teal)">${c.moncash}</td><td>${cvids.filter(v=>v.creatorId===c.id).length}</td><td style="color:var(--gold)">${(c.totalEarned||0).toLocaleString()} HTG</td><td style="color:var(--teal)">${(c.balance||0).toLocaleString()} HTG</td><td><button class="btn bt bsm" onclick="payCr('${c.id}')">Payer 💸</button></td></tr>`).join('');}
+async function payCr(id){const c=creators.find(x=>x.id===id);if(!c||!c.balance){toast('Solde nul.');return;}toast(`Virement ${c.balance} HTG → ${c.moncash}`);c.balance=0;await sav('sf_cr3',creators);rCrT();}
+function rCntT(){const all=[...miniData.map(d=>({...d,s:'mini'})),...filmsData.map(d=>({...d,s:'films'})),...seriesData.map(d=>({...d,s:'series'})),...cvids.map(d=>({...d,s:'cv'}))];document.getElementById('cnt-body').innerHTML=all.map(d=>`<tr><td>${d.emoji} ${d.title}${d.creatorId?'<span style="font-size:9px;color:var(--purple);margin-left:4px">Créateur</span>':''}</td><td style="color:#888">${d.cat}</td><td><span class="tbg ${d.free?'bfr':'bpr'}">${d.free?'Gratuit':'Premium'}</span></td><td><button class="delbtn" onclick="delContent(${d.id},'${d.s}')">Supprimer</button></td></tr>`).join('');}
+async function delContent(id,s){if(s==='mini')miniData=miniData.filter(d=>d.id!==id);else if(s==='films')filmsData=filmsData.filter(d=>d.id!==id);else if(s==='series')seriesData=seriesData.filter(d=>d.id!==id);else{cvids=cvids.filter(d=>d.id!==id);await sav('sf_cv3',cvids);}renderAll();rCntT();updateHero();}
+async function adminAdd(){const t2=document.getElementById('at').value.trim(),cat=document.getElementById('ac').value,yt=document.getElementById('ay').value.trim(),isFree=document.getElementById('afr').value==='free',em=document.getElementById('ae').value||'🎬';if(!t2||!yt){toast('Titre et URL requis.');return;}const d={id:Date.now(),emoji:em,title:t2,cat:'Nouveau',free:isFree,badge:'new',ytId:exYT(yt)};if(cat==='mini')miniData.push(d);else if(cat==='films')filmsData.push(d);else seriesData.push(d);renderAll();rCntT();updateHero();document.getElementById('at').value='';document.getElementById('ay').value='';toast('Publié ! 🎉');}
+async function saveSettings(){cfg.commissionRate=parseInt(document.getElementById('comm-in').value)||25;cfg.ownerMC=document.getElementById('owner-mc').value.trim();await sav('sf_cfg3',cfg);updateComm();toast('Enregistré ✓');rAdminDash();}
+
+function openCP(){document.getElementById('creator-panel').classList.add('open');swCP('cds',document.querySelector('#creator-panel .ptab'));rCrDash();rCrVids();if(cCreator){document.getElementById('cr-bal').textContent=(cCreator.balance||0)+' HTG';document.getElementById('cr-mc').textContent=cCreator.moncash;}}
+function swCP(t2,btn){['cds','cvd','cad','cpw'].forEach(x=>document.getElementById('cp-'+x).style.display=x===t2?'block':'none');document.querySelectorAll('#creator-panel .ptab').forEach(b=>b.className='ptab');btn.className='ptab active';}
+function rCrDash(){if(!cCreator)return;const mv=cvids.filter(v=>v.creatorId===cCreator.id);document.getElementById('cr-stats').innerHTML=`<div class="sc"><div class="scv" style="color:var(--gold)">${(cCreator.totalEarned||0)} HTG</div><div class="scl">Revenus totaux</div></div><div class="sc"><div class="scv" style="color:var(--teal)">${(cCreator.balance||0)} HTG</div><div class="scl">Solde</div></div><div class="sc"><div class="scv" style="color:var(--purple)">${mv.length}</div><div class="scl">Vidéos</div></div>`;document.getElementById('cr-hist').innerHTML='<p style="font-size:10px;color:#555">Historique de ventes.</p>';}
+function rCrVids(){if(!cCreator)return;const mv=cvids.filter(v=>v.creatorId===cCreator.id);document.getElementById('cvd-body').innerHTML=!mv.length?'<tr><td colspan="5" style="text-align:center;color:#555;padding:12px">Aucune vidéo</td></tr>':mv.map(v=>`<tr><td>${v.emoji} ${v.title}</td><td>${v.price} HTG</td><td>0</td><td>0 HTG</td><td><button class="delbtn" onclick="delMV(${v.id})">Retirer</button></td></tr>`).join('');}
+async function publishVideo(){if(!cCreator){toast('Connectez-vous comme créateur.');return;}const t2=document.getElementById('vt').value.trim(),cat=document.getElementById('vcat').value,yt=document.getElementById('vyt').value.trim(),price=parseInt(document.getElementById('vpr').value)||500,em=document.getElementById('vem').value||'🎬';if(!t2||!yt){toast('Titre et URL requis.');return;}const v={id:Date.now(),emoji:em,title:t2,cat:{mini:'Mini Vidéo',films:'Film',series:'Série'}[cat],free:false,badge:'new',ytId:exYT(yt),creatorId:cCreator.id,creatorName:cCreator.name,price};cvids.push(v);await sav('sf_cv3',cvids);renderAll();rCrVids();updateHero();document.getElementById('vt').value='';document.getElementById('vyt').value='';toast('Publié ! ⭐');}
+async function delMV(id){cvids=cvids.filter(v=>v.id!==id);await sav('sf_cv3',cvids);renderAll();rCrVids();updateHero();}
+async function reqWD(){if(!cCreator)return;const amt=parseInt(document.getElementById('wd').value)||0;if(!amt||(cCreator.balance||0)<amt){toast('Montant invalide.');return;}cCreator.balance-=amt;const c=creators.find(x=>x.id===cCreator.id);if(c)c.balance=cCreator.balance;await sav('sf_cr3',creators);document.getElementById('cr-bal').textContent=cCreator.balance+' HTG';const el=document.createElement('div');el.className='act-item';el.innerHTML=`<span class="act-time">Maintenant</span><span class="act-msg">Retrait ${amt} HTG → ${cCreator.moncash} <span style="color:orange">24-48h</span></span>`;document.getElementById('wd-list').prepend(el);document.getElementById('wd').value='';toast('Retrait demandé ! 📱');}
+
+function exYT(url){const m=url.match(/(?:youtu\.be\/|v=|embed\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:url.trim().slice(0,11);}
+
+['auth-modal','pay-modal'].forEach(id=>document.getElementById(id).addEventListener('click',e=>{if(e.target.id===id)cm(id);}));
+document.getElementById('player-modal').addEventListener('click',e=>{if(e.target.id==='player-modal')closePlayer();});
+
+function toast(msg){const t2=document.getElementById('toast');t2.innerHTML=msg;t2.classList.add('show');clearTimeout(t2._t);t2._t=setTimeout(()=>t2.classList.remove('show'),3200);}
+
+init();
+</script>
