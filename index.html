@@ -962,3 +962,47 @@ function toast(msg){const t2=document.getElementById('toast');t2.innerHTML=msg;t
 
 init();
 </script>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { 
+  getAuth, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyBU_...",
+  authDomain: "streamfun-888d6.firebaseapp.com",
+  projectId: "streamfun-888d6",
+  storageBucket: "streamfun-888d6.appspot.com",
+  messagingSenderId: "51128190523",
+  appId: "1:51128190523:web:..."
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// LOGIN
+window.loginUser = async (email, password) => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    alert("Connexion réussie ✅");
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+// REGISTER
+window.registerUser = async (email, password) => {
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    alert("Compte créé ✅");
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+</script>
