@@ -1006,3 +1006,18 @@ window.registerUser = async (email, password) => {
 };
 
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const loginBtn = document.querySelector("button");
+  
+  if (loginBtn) {
+    loginBtn.onclick = () => {
+      const email = document.getElementById("le")?.value;
+      const password = document.getElementById("lp")?.value;
+      loginUser(email, password);
+    };
+  }
+
+});
+</script>
