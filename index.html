@@ -1011,8 +1011,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const loginBtn = document.querySelector("#loginBtn");
   
-  if (loginBtn) {
-    loginBtn.onclick = () => {
+  async function doLogin(){
+  const e = document.getElementById('le').value.trim();
+  const p = document.getElementById('lp').value.trim();
+
+  if(!e || !p){
+    toast('Remplissez tous les champs.');
+    return;
+  }
+
+  await loginUser(e, p);
+}    loginBtn.onclick = () => {
       const email = document.getElementById("le")?.value;
       const password = document.getElementById("lp")?.value;
       loginUser(email, password);
